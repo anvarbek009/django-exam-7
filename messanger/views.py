@@ -6,6 +6,7 @@ from django.views import View
 from django.db.models import Q
 from .forms import MessageForm,UserMessageForm
 from django.http import JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponse
 
 # Create your views here.
 
@@ -158,6 +159,46 @@ def send_message_to_user(request, pk):
     else:
         form = MessageForm()
     return render(request, 'messanger/send_to_user.html', {'form': form, 'user': user})
+
+
+@login_required
+def user_messages(request):
+    # Get messages sent or received by the logged-in user
+    user_messages = UserMessage.objects.filter(sender=request.user) | UserMessage.objects.filter(receiver=request.user)
+    context = {
+        'user_messages': user_messages
+    }
+    return render(request, 'messanger/user_messages.html', context)
+
+@login_required
+def send__message(request):
+    if request.method == 'POST':
+        sender = request.user  # Assuming sender is the logged-in user
+        receiver_id = request.POST.get('receiver_id')  # Adjust how you get receiver_id based on your form data
+        text = request.POST.get('text')
+        
+        # Validate receiver_id (optional)
+        if not receiver_id:
+            return HttpResponseBadRequest('Receiver ID is required.')
+
+        # Retrieve receiver or return 404 if not found
+        receiver = get_object_or_404(CustomUser, pk=receiver_id)
+
+        # Create message instance
+        message = UserMessage.objects.create(sender=sender, receiver=receiver, text=text)
+
+        # Redirect or return JSON response as needed
+        return HttpResponse('Message sent successfully!')
+    else:
+        return HttpResponseBadRequest('Invalid request method.')
+    
+@login_required
+def delete_message(request, message_id):
+    message = UserMessage.objects.get(pk=message_id)
+    # Check if the logged-in user is either sender or receiver of the message
+    if request.user == message.sender or request.user == message.receiver:
+        message.delete()
+    return redirect('messangeruser_messages')
 
 class UserMessages(View):
     def get(self, request, pk):

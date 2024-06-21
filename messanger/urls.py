@@ -1,6 +1,6 @@
 # urls.py
 from django.urls import path
-from .views import Home, channel_messages,  send_message,UserMessages,send_message_to_user,GroupView,notifications
+from .views import Home, channel_messages,  send_message,UserMessages,send_message_to_user,GroupView,notifications,send__message,user_messages,delete_message
 
 app_name = 'messanger'
 urlpatterns = [
@@ -11,7 +11,10 @@ urlpatterns = [
     path('message/<int:pk>/', send_message_to_user, name='user'),
     path('group/<int:pk>/', GroupView.as_view(), name='group_messages'),
     path('notifications/', notifications, name='notifications'),
-
+    path('messages/', user_messages, name='user_messages'),
+    path('send/', send__message, name='send_message'),
+    path('delete/<int:message_id>/', delete_message, name='delete_message'),
+    #
 
     # path('messages/chat/<int:chat_id>/', chat_messages, name='chat_messages'),
 ]

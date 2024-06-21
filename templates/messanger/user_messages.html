@@ -1,44 +1,119 @@
-{% extends 'base.html' %}
-{% block title %}{{user.username}}{% endblock %}
-{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Messages</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .container {
+        width: 80%;
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .message-list {
+        list-style-type: none;
+        padding: 0;
+    }
+    
+    .message {
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .message .message-info {
+        flex: 1;
+    }
+    
+    .message .message-time {
+        font-size: 12px;
+        color: #888;
+    }
+    
+    .message .message-attachment {
+        margin-top: 5px;
+        font-size: 12px;
+        color: #007bff;
+    }
+    
+    .actions {
+        align-self: center;
+    }
+    
+    .actions .delete-button {
+        color: #dc3545;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .actions .delete-button:hover {
+        text-decoration: underline;
+    }
+    
+    .send-message-button {
+        display: block;
+        width: 150px;
+        margin: 20px auto;
+        padding: 10px;
+        text-align: center;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    
+    .send-message-button:hover {
+        background-color: #0056b3;
+    }
+</style>
+</head>
+<body>
 
 <div class="container">
-    <div class="header">
-        <h2>Messages with {{ user.username }}</h2>
-    </div>
-    <h3>Previous Messages:</h3>
-    <ul class="messages-list">
-        {% for message in messages %}
-        <li class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
-            <p>{{ message.text }}</p>
-            {% if message.attachment %}
-            <p><a href="{{ message.attachment.url }}">Download attachment</a></p>
-            {% endif %}
-            <p><small>Sent by {{ message.sender.username }} to {{ message.receiver.username }} at {{ message.created_at }}</small></p>
+    <h1>User Messages</h1>
+    <ul class="message-list">
+        {% for message in user_messages %}
+        <li class="message">
+            <div class="message-info">
+                <p><strong>From:</strong> {{ message.sender }}</p>
+                <p><strong>To:</strong> {{ message.receiver }}</p>
+                <p>{{ message.text }}</p>
+                {% if message.attachment %}
+                <p class="message-attachment"><a href="{{ message.attachment.url }}">Download Attachment</a></p>
+                {% endif %}
+                <p class="message-time">{{ message.created_at }}</p>
+            </div>
+            <div class="actions">
+                <a href="{% url 'messanger:delete_message' message.id %}" class="delete-button">Delete</a>
+            </div>
         </li>
         {% empty %}
-        <li class="message">No messages found.</li>
+        <li>No messages found.</li>
         {% endfor %}
     </ul>
-    <hr>
-        <div class="message-form">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="id_text">Message:</label>
-                <textarea id="id_text" name="text" rows="4" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="id_attachment">Attachment:</label>
-                <input type="file" id="id_attachment" name="attachment">
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Send Message">
-            </div>
-        </form>
-    </div>
-
-
+    <a href="{% url 'messanger:send_message' %}" class="send-message-button">Send Message</a>
 </div>
 
-{% endblock %}
+</body>
+</html>
