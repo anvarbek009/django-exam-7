@@ -6,6 +6,7 @@ from django.views import View
 from django.db.models import Q
 from .forms import MessageForm,UserMessageForm
 from django.http import JsonResponse
+
 # Create your views here.
 
 # @login_required
@@ -180,4 +181,11 @@ class UserMessages(View):
             (Q(sender=request.user) & Q(receiver=user)) | (Q(sender=user) & Q(receiver=request.user))
         ).order_by('created_at')
         return render(request, 'messanger/user_messages.html', {'messages': messages, 'user': user, 'form': form})
+    
+def notifications(request):
+    user_notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    context = {
+        'notifications': user_notifications
+    }
+    return render(request, 'messanger/notifications.html', context)
 
