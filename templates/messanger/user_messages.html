@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}{{user.username}}{% endblock %}
+{% block content %}
+
+<div class="container">
+    <div class="header">
+        <h2>Messages with {{ user.username }}</h2>
+    </div>
+    <h3>Previous Messages:</h3>
+    <ul class="messages-list">
+        {% for message in messages %}
+        <li class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+            <p>{{ message.text }}</p>
+            {% if message.attachment %}
+            <p><a href="{{ message.attachment.url }}">Download attachment</a></p>
+            {% endif %}
+            <p><small>Sent by {{ message.sender.username }} to {{ message.receiver.username }} at {{ message.created_at }}</small></p>
+        </li>
+        {% empty %}
+        <li class="message">No messages found.</li>
+        {% endfor %}
+    </ul>
+    <hr>
+        <div class="message-form">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_text">Message:</label>
+                <textarea id="id_text" name="text" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="id_attachment">Attachment:</label>
+                <input type="file" id="id_attachment" name="attachment">
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Send Message">
+            </div>
+        </form>
+    </div>
+
+
+</div>
+
+{% endblock %}

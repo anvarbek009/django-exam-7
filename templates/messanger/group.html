@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            background-color:#0044ff;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .content {
+            max-width: 900px;
+            width: 100%;
+            margin: 20px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .messages-container {
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            display: flex;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff; /* Default background color for messages */
+            border: 1px solid #ddd; /* Default border for messages */
+        }
+
+        .message-user {
+            align-self: flex-start; /* Align user's messages to the left */
+            background-color: #e6f7ff; /* Light blue for user messages */
+            border-color: #b3e0ff; /* Light blue border for user messages */
+        }
+
+        .message-other {
+            align-self: flex-start; /* Align other messages to the left */
+            background-color: #ffffff; /* White background for other messages */
+            border-color: #ddd; /* Grey border for other messages */
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #3a3a3a;
+        }
+
+        .text {
+            margin: 5px 0;
+        }
+
+        .attachment {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .attachment:hover {
+            text-decoration: underline;
+        }
+
+        .form-container {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            width: 100%;
+        }
+
+        form input, form textarea {
+            width: 90%;
+            max-width: 860px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        form button {
+            padding: 5px;
+            background-color: #6e87f8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .send-button-img{
+            width: 40px;
+            height: 30px;
+        }
+
+        form button:hover {
+            background-color: #0004ff;
+            color: white;
+        }
+
+        .nav {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+
+        .nav ul li a {
+            text-decoration: none;
+            color: #6aa84f;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .nav ul li a:hover {
+            color: #3a3a3a;
+        }
+
+        .download-button{
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .home-button{
+            color: #5762ff;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            border: 2px solid #002df8;  
+            background-color: white;
+        }
+
+        .home-button:hover{
+            color: #ffffff;
+            background-color: #4c63af;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>{{ group.name }}</h1>
+    </header>
+    <div class="content">
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="message {% if message.sender.username == user.username %}message-user{% else %}message-other{% endif %}">
+                    <div class="message-content">
+                        <span class="username">{{ message.sender.username }}</span>
+                        <span class="text">{{ message.content }}</span>
+                        {% if message.attachment %}
+                            <a href="{{ message.attachment.url }}" class="attachment">
+                                <button class="download-button">
+                                     <img src="https://static.vecteezy.com/system/resources/previews/019/879/209/non_2x/download-button-on-transparent-background-free-png.png" alt="send" class="send-button-img">
+                                </button> 
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-container">
+            <h2>Send a Message to {{ group.name }}</h2>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ message_form.as_p }}
+                <button type="submit" class="send-button">
+                    <img src="https://static.thenounproject.com/png/3553333-200.png" alt="send" class="send-button-img">
+                </button>
+            </form>
+        </div>
+        <a href="{% url 'messanger:home' %}">
+            <button class="home-button">
+                Home
+            </button>
+        </a>
+    </div>
+</body>
+</html>
+

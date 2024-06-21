@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> {% block title %} Messages{% endblock %}</title>
+    {% load humanize %}
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            list-style: none;
+            text-decoration: none;
+        }
+
+        body {
+            background-color: #f1f1f1;
+            display: flex;
+        }
+
+        header {
+            width: 30%;
+            height: 100vh;
+            background-color: #ffffff;
+            position: fixed;
+        }
+
+        main {
+            width: 70%;
+            height: 100vh;
+            background-color: #f1f1f1;
+            margin-left: 30%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            width: 100%;
+            height: 100vh;
+            background-color: #ffffff;
+        }
+
+        .button-auth {
+            width: 400px;
+            height: 200px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 40px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-auth img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .button-auth:hover {
+            background-color: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .button-auth:hover img {
+            transform: rotate(20deg);
+        }
+
+        .search-form {
+            display: flex;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        .search-form input[type="text"] {
+            padding: 10px;
+            border-radius: 5px 0 0 5px;
+            border: 1px solid #ccc;
+            outline: none;
+            width: 200px;
+        }
+
+        .search-form button {
+            padding: 10px;
+            border-radius: 0 5px 5px 0;
+            border: 1px solid #ccc;
+            background-color: #3f51b5;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-form button:hover {
+            background-color: #303f9f;
+        }
+
+        h2 {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            color: #3f51b5;
+        }
+
+        ul {
+            padding: 0 20px;
+        }
+
+        ul li {
+            width: 100%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 0 auto;
+            border-bottom: 1px solid #ddd;
+            background-color: antiquewhite;
+            cursor: pointer;
+            font-size: 25px;
+        }
+
+        ul li a {
+            text-decoration: none;
+            color: #3f51b5;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        ul li a:hover {
+            color: #ff4081;
+        }
+
+        #search-results {
+            margin: 20px;
+        }
+
+        .channel-messages {
+            width: 70%;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .channel-messages h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .channel_form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .channel_form textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            resize: vertical;
+        }
+
+        .channel_form button {
+            align-self: flex-end;
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .channel_form button:hover {
+            background-color: #0056b3;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .content {
+            max-width: 900px;
+            width: 100%;
+            margin: 20px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .messages-container {
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            display: flex;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff; /* Default background color for messages */
+            border: 1px solid #ddd; /* Default border for messages */
+        }
+
+        .message-user {
+            align-self: flex-start; /* Align user's messages to the left */
+            background-color: #e6f7ff; /* Light blue for user messages */
+            border-color: #b3e0ff; /* Light blue border for user messages */
+        }
+
+        .message-other {
+            align-self: flex-start; /* Align other messages to the left */
+            background-color: #ffffff; /* White background for other messages */
+            border-color: #ddd; /* Grey border for other messages */
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #3a3a3a;
+        }
+
+        .text {
+            margin: 5px 0;
+        }
+
+        .attachment {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .attachment:hover {
+            text-decoration: underline;
+        }
+
+        .form-container {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            width: 100%;
+        }
+
+        form input, form textarea {
+            width: 90%;
+            max-width: 860px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        form button {
+            padding: 5px;
+            background-color: #6e87f8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #0004ff;
+            color: white;
+        }
+
+        .nav {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+
+        .nav ul li a {
+            text-decoration: none;
+            color: #6aa84f;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .nav ul li a:hover {
+            color: #3a3a3a;
+        }
+
+        .download-button {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .home-button {
+            color: #5762ff;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            border: 2px solid #002df8;  
+            background-color: white;
+        }
+
+        .home-button:hover {
+            color: #ffffff;
+            background-color: #4c63af;
+            cursor: pointer;
+        }
+
+
+        /* .message-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #fafafa;
+        }
+
+        .message {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .message:last-child {
+            border-bottom: none;
+        }
+
+        .message p {
+            margin: 5px 0;
+        }
+
+        .message p strong {
+            color: #007bff;
+        }
+
+        .message p span {
+            font-size: 12px;
+            color: #888;
+            margin-left: 10px;
+        }
+
+
+
+        .message {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .message p {
+            margin: 0;
+            font-size: 14px;
+        }
+        .message .message-content {
+            margin-bottom: 10px;
+        }
+        .message .message-attachment {
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .message-form {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+        }
+        .form-group input[type="file"] {
+            margin-top: 5px;
+        }
+        .form-group input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #0056b3;
+        } */
+        .some-buttons{
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            margin: 0 auto;
+            margin-top: 10px;
+        }
+        .some_button{
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .some_button:hover {
+            background-color: #0056b3;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 1000px;
+            height: 700px;
+            margin: 50px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .form-container h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+        .form-container form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            font-size: 40px;
+            align-items: center;
+        }
+        .form-container form .form-group {
+            margin-bottom: 15px;
+        }
+        .form-container form .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-container form .form-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            
+        }
+        .form-container form input{
+            width: 150px;
+            height: 30px;
+            border: solid 1px #000000;
+            background-color: #f1f1f1;
+            color: black;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 20px;
+        }
+        .form-container form button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .form-container form button:hover {
+            background-color: #0056b3;
+        }
+        .profile-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 50px auto;
+            width: 500px;
+            height: 400px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-direction: column;
+            font-size: 20px;
+        }
+        .profile-container h1 {
+            font-size: 24px;
+            text-align: center;
+            width: 500px;
+
+        }
+        .profile-container img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: solid 1px black;
+            padding: 5px;
+
+        }
+
+
+
+    </style>
+</head>
+<body>
+    <header>
+
+        <div class="header-content">
+            {% if user.is_authenticated %}
+            <div class="some-buttons">
+                <a href="{% url 'messanger:home' %}"><button class="some_button">Home</button></a>
+                <a href="{% url 'users:profile' %}"><button class="some_button">Profile</button></a>
+                <a href="{% url 'users:logout' %}"><button class="some_button">Logout</button></a>
+            </div>
+                <div class="search-form">
+                    <form id="search-form" method="get" action="{% url 'messanger:home' %}">
+                        <input id="search-input" type="text" name="q" placeholder="Search...">
+                        <button type="submit">Search</button>
+                    </form>
+                </div>
+
+                <!-- Search Results Section -->
+                <div id="search-results">
+                    <!-- Results will be dynamically loaded here -->
+                </div>
+                
+                <h2>Groups</h2>
+                <ul>
+                    {% for group in groups %}
+                    <li><a href="{% url 'messanger:group_messages' group.id %}">{{ group.name }}</a></li>
+                    {% endfor %}    
+                </ul>
+                <h2>Users</h2>
+                <ul>
+                    {% for user in users %}
+                        <li><a href="{% url 'messanger:user_messages' user.pk %}">{{ user.username }}</a> 
+                            {% if user.last_online %}
+                                <span style="color: #888; font-size: 12px;">
+                                (Last online: {{ user.last_online|naturaltime }})
+                                </span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+                <h2>Channels</h2>
+                <ul>
+                    {% for user_channel in channels %}
+                    <li><a href="{% url 'messanger:channel_messages' user_channel.channel.pk %}">{{ user_channel.channel.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="auth-buttons">
+                    <a href="{% url 'users:register' %}">
+                        <button class="button-auth">
+                            <img src="https://static-00.iconduck.com/assets.00/register-icon-2048x2048-m490ylf1.png" alt="register">Register
+                        </button>
+                    </a>
+                    <a href="{% url 'users:login' %}">
+                        <button class="button-auth">
+                            <img src="https://img.icons8.com/ios-filled/50/000000/login-rounded-right.png" alt="login">Login
+                        </button>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </header>
+<hr>
+    <main>
+        {% block content %}
+
+        {%  endblock %}
+    </main>
+
+    <script>
+        // JavaScript for handling AJAX search
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+
+        searchForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const searchQuery = searchInput.value.trim();
+
+            fetch(`${window.location.href}?q=${encodeURIComponent(searchQuery)}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                displaySearchResults(data);
+            })
+            .catch(error => {
+                console.error('Error fetching search results:', error);
+            });
+        });
+
+        function displaySearchResults(data) {
+            let html = '';
+
+            // Display users
+            if (data.users && data.users.length > 0) {
+                html += '<h2>Users</h2>';
+                data.users.forEach(user => {
+                    html += `<div class="search-result">
+                                <h3>${user.username}</h3>
+                                <p><strong>Name:</strong> ${user.get_full_name}</p>
+                                <p><strong>Email:</strong> ${user.email}</p>
+                            </div>`;
+                });
+            }
+
+            // Display channels
+            if (data.channels && data.channels.length > 0) {
+                html += '<h2>Channels</h2>';
+                data.channels.forEach(channel => {
+                    html += `<div class="search-result">
+                                <h3>${channel.name}</h3>
+                                <p>${channel.description}</p>
+                            </div>`;
+                });
+            }
+
+            // Display groups
+            if (data.groups && data.groups.length > 0) {
+                html += '<h2>Groups</h2>';
+                data.groups.forEach(group => {
+                    html += `<div class="search-result">
+                                <h3>${group.name}</h3>
+                                <p>${group.description}</p>
+                            </div>`;
+                });
+            }
+
+            // Display no results found message
+            if (!data.users.length && !data.channels.length && !data.groups.length) {
+                html += `<p>No results found for '${searchInput.value}'.</p>`;
+            }
+
+            // Update search results section
+            searchResults.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

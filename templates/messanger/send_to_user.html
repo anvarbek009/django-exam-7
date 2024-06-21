@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{{user.username}}{% endblock %}
+{% block content %}
+    <div class="continer">
+        <h2 class="title">Send a message to {{ user.username }}</h2>
+        <form method="post" enctype="multipart/form-data" class="form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="button-submit">Send Message</button>
+        </form>
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'messanger:home' %}">Home</a></li>
+            </ul>
+        </nav>
+    </div>
+{% endblock %}

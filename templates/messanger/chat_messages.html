@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Chat {{ chat.id }}{% endblock %}
+{% block content %}
+<h2>Chat {{ chat.id }}</h2>
+<div class="message-list">
+    {% for message in messages %}
+    <div class="message">
+        <p><strong>{{ message.sender.username }}</strong> <span>{{ message.created_at }}</span></p>
+        <p>{{ message.content }}</p>
+        {% if message.attachment %}
+            <a href="{{ message.attachment.url }}">Open File</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+<form method="post" action="{% url 'send_chat_message' chat.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Send</button>
+</form>
+{% endblock %}
